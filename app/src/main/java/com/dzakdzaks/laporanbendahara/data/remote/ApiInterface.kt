@@ -14,7 +14,8 @@ interface ApiInterface {
 
     @GET("4rxz3ate6ezks")
     fun getReports(
+        /*@Query("limit") limit: Int = 20,*/
         @Query("sort_by") sortBy: String = "Timestamp",
-        @Query("sort_order") sortOrder: String = "asc"
+        @Query("sort_order") sortOrder: String = "desc"
     ): Flow<Resource<List<Report>>>
 }

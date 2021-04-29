@@ -19,8 +19,11 @@ class MainViewModel @Inject constructor(
         mainRepository.getReports().asLiveData()
     }
 
+    val reportsData: MutableList<Report> = mutableListOf()
+
     private val _shouldLaunchAddReport = SingleLiveEvent<Boolean>()
     val shouldLaunchAddReport: LiveData<Boolean> = _shouldLaunchAddReport
+
 
     init {
         _shouldLoadReports.value = true
@@ -38,6 +41,25 @@ class MainViewModel @Inject constructor(
 
     fun onNewReportAdded() {
         _shouldLoadReports.value = true
+    }
+
+    fun customDataHeader(responseListReport: List<Report>): List<Report> {
+        val resultList: MutableList<Report> = mutableListOf()
+        var prevDate = ""
+        reportsData.let {
+            if (!it.isNullOrEmpty()) {
+                prevDate = it[it.size - 1].getCreatedAtJustDate()
+            }
+        }
+        responseListReport.forEach { item ->
+            val currDate = item.getCreatedAtJustDate()
+            if (prevDate != currDate) {
+                prevDate = currDate
+                resultList.add(Report(itemType = Report.ITEM_HEADER, createdAt = item.createdAt))
+            }
+            resultList.add(item)
+        }
+        return resultList
     }
 
 }

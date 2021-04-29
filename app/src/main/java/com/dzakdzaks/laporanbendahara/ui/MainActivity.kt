@@ -9,8 +9,8 @@ import com.dzakdzaks.laporanbendahara.R
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.databinding.ActivityMainBinding
 import com.dzakdzaks.laporanbendahara.utils.Resource
+import com.dzakdzaks.laporanbendahara.utils.extension.toggleLoading
 import com.oushangfeng.pinnedsectionitemdecoration.PinnedHeaderItemDecoration
-import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -31,15 +31,24 @@ class MainActivity : AppCompatActivity() {
 
         binding.vm = viewModel
 
+        setupAdapter(binding)
         observeData(binding)
     }
 
-    private fun setupAdapter(binding: ActivityMainBinding, list: List<Report>) {
-        mainAdapter = MainAdapter(list.toMutableList())
-
+    private fun setupAdapter(binding: ActivityMainBinding) {
+        mainAdapter = MainAdapter(null) {
+            Toast.makeText(this, it.type, Toast.LENGTH_SHORT).show()
+        }
         binding.list.apply {
             adapter = mainAdapter
+            addItemDecoration(
+                PinnedHeaderItemDecoration.Builder(Report.ITEM_HEADER)
+                    .enableDivider(false)
+                    .disableHeaderClick(true)
+                    .create()
+            )
         }
+
     }
 
     private fun observeData(binding: ActivityMainBinding) {
@@ -47,12 +56,12 @@ class MainActivity : AppCompatActivity() {
             when (it) {
 
                 is Resource.Loading -> {
-                    Timber.d("wakwaw ${it.isLoading}")
+                    binding.progressBar.toggleLoading(isLoading = it.isLoading)
                 }
 
                 is Resource.Success -> {
-                    Timber.d("wakwaw ${it.data.size}")
-                    setupAdapter(binding, it.data)
+                    viewModel.reportsData.addAll(viewModel.customDataHeader(it.data))
+                    mainAdapter.setNewInstance(viewModel.reportsData)
                 }
 
                 is Resource.Error -> {
