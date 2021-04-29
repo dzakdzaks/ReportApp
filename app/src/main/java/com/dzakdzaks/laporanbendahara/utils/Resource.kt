@@ -2,7 +2,9 @@ package com.dzakdzaks.laporanbendahara.utils
 
 sealed class Resource<T> {
 
-    class Loading<T> : Resource<T>()
+    data class Loading<T>(
+        val isLoading: Boolean
+    ) : Resource<T>()
 
     data class Success<T>(
         val message: String?,

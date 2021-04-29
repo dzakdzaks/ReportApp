@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             when (it) {
 
                 is Resource.Loading -> {
-                    Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
+                    Timber.d("wakwaw ${it.isLoading}")
                 }
 
                 is Resource.Success -> {
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 is Resource.Error -> {
+                    Timber.d("wakwaw ${it.errorData}")
                     Toast.makeText(this, it.errorData, Toast.LENGTH_SHORT).show();
                 }
             }

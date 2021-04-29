@@ -27,25 +27,29 @@ class FlowResourceCallAdapter<R>(
     override fun adapt(call: Call<R>): Flow<Resource<R>> = flow {
 
         // Firing loading resource
-        emit(Resource.Loading<R>())
+        emit(Resource.Loading<R>(true))
 
         val resp = call.awaitResponse()
 
         if (resp.isSuccessful) {
             resp.body()?.let { data ->
+                emit(Resource.Loading<R>(false))
                 // Success
                 emit(Success<R>(null, data))
             } ?: kotlin.run {
+                emit(Resource.Loading<R>(false))
                 // Error
                 emit(Error<R>("Response can't be null"))
             }
         } else {
+            emit(Resource.Loading<R>(false))
             // Error
             val errorBody = resp.message()
             emit(Error<R>(errorBody))
         }
 
     }.catch { error: Throwable ->
+        emit(Resource.Loading<R>(false))
         if (isSelfExceptionHandling) {
             emit(Error(error.message ?: "Something went wrong"))
         } else {
