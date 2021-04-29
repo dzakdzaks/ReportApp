@@ -1,5 +1,6 @@
 package com.dzakdzaks.laporanbendahara.data.remote.model
 
+import com.chad.library.adapter.base.entity.MultiItemEntity
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -40,4 +41,12 @@ data class Report(
     @Json(name = "Keterangan Pengeluaran")
     val descriptionExpense: String,
     /*EXPENSE*/
-)
+
+    override val itemType: Int = ITEM_DATA
+): MultiItemEntity {
+
+    companion object {
+        const val ITEM_HEADER = 1
+        const val ITEM_DATA = 2
+    }
+}

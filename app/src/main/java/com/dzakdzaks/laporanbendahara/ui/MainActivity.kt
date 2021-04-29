@@ -6,8 +6,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.dzakdzaks.laporanbendahara.R
+import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.databinding.ActivityMainBinding
 import com.dzakdzaks.laporanbendahara.utils.Resource
+import com.oushangfeng.pinnedsectionitemdecoration.PinnedHeaderItemDecoration
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -16,6 +18,7 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+    private lateinit var mainAdapter: MainAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +34,14 @@ class MainActivity : AppCompatActivity() {
         observeData(binding)
     }
 
+    private fun setupAdapter(binding: ActivityMainBinding, list: List<Report>) {
+        mainAdapter = MainAdapter(list.toMutableList())
+
+        binding.list.apply {
+            adapter = mainAdapter
+        }
+    }
+
     private fun observeData(binding: ActivityMainBinding) {
         viewModel.reports.observe(this, {
             when (it) {
@@ -41,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
                 is Resource.Success -> {
                     Timber.d("wakwaw ${it.data.size}")
+                    setupAdapter(binding, it.data)
                 }
 
                 is Resource.Error -> {
