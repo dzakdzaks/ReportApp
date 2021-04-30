@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupAdapter() {
         mainAdapter = MainAdapter(null) {
-            DetailActivity.newInstance(this, it, DetailActivity.DETAIL)
+            DetailActivity.newInstance(this, it, DetailActivity.DETAIL, mainAdapter.getCountBody())
         }
         binding.list.apply {
             adapter = mainAdapter
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupClicked() {
         binding.apply {
             fab.setOnClickListener {
-                DetailActivity.newInstance(this@MainActivity, null, DetailActivity.ADD)
+                DetailActivity.newInstance(this@MainActivity, null, DetailActivity.ADD, mainAdapter.getCountBody())
             }
         }
     }

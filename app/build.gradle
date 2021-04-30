@@ -77,6 +77,9 @@ dependencies {
     // Converter: Moshi : A Retrofit Converter which uses Moshi for serialization.
     implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
 
+    // GSON serialize and deserialize Java objects to JSON
+    implementation 'com.google.code.gson:gson:2.8.6'
+
     // OkHttp and Log interceptor
     implementation "com.squareup.okhttp3:okhttp:4.7.2"
     implementation "com.squareup.okhttp3:logging-interceptor:4.7.2"

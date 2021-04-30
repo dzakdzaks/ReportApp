@@ -11,28 +11,33 @@
 
     </data>
 
-    <ScrollView
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/color_background"
+        android:clickable="true"
         android:fillViewport="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:isScrollContainer="true"
         android:scrollbars="vertical"
         tools:context=".ui.detail.DetailActivity">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:fitsSystemWindows="true"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:padding="16dp">
 
                 <LinearLayout
                     android:id="@+id/containerType"
@@ -160,6 +165,27 @@
                 </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputOther"
+                    android:visibility="gone"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Other">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:importantForAutofill="no"
+                        android:singleLine="true"
+                        android:text="@={vm.other}"
+                        android:textAlignment="viewStart" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/inputReceiver"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -175,6 +201,7 @@
                         android:importantForAutofill="no"
                         android:inputType="text"
                         android:singleLine="true"
+                        android:text="@={vm.receiver}"
                         android:textAlignment="viewStart" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -195,6 +222,7 @@
                         android:importantForAutofill="no"
                         android:inputType="text"
                         android:singleLine="true"
+                        android:text="@={vm.witness}"
                         android:textAlignment="viewStart" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -219,19 +247,26 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <View
+                    android:layout_margin="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="100dp"/>
+
             </LinearLayout>
+        </RelativeLayout>
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:srcCompat="@drawable/ic_add"
-                app:tint="@color/white" />
+    </androidx.core.widget.NestedScrollView>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            app:srcCompat="@drawable/ic_add"
+            app:tint="@color/white" />
 
-    </ScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </layout>

@@ -46,11 +46,12 @@ data class Report(
         @Json(name = "Yang Menerima")
         val whoReceived: String = "",
         @Json(name = "Saksi")
-        val WitnessExpense: String = "",
+        val witnessExpense: String = "",
         @Json(name = "Keterangan Pengeluaran")
         val descriptionExpense: String = "",
         /*EXPENSE*/
 
+        @Transient
         override val itemType: Int = ITEM_DATA
 ) : Parcelable, MultiItemEntity {
 
