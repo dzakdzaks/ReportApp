@@ -5,6 +5,10 @@
 
     <data>
 
+        <variable
+            name="vm"
+            type="com.dzakdzaks.laporanbendahara.ui.detail.DetailViewModel" />
+
     </data>
 
     <ScrollView
@@ -20,6 +24,7 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:fitsSystemWindows="true"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:padding="16dp"
@@ -45,6 +50,7 @@
                         android:importantForAutofill="no"
                         android:inputType="text"
                         android:singleLine="true"
+                        android:text="@={vm.date}"
                         android:textAlignment="viewStart" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -61,6 +67,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"
+                        android:text="@={vm.title}"
                         tools:ignore="LabelFor" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -80,6 +87,7 @@
                         android:importantForAutofill="no"
                         android:inputType="number"
                         android:singleLine="true"
+                        android:text="@={vm.total}"
                         android:textAlignment="viewStart" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -92,6 +100,7 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tvTitleCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Penerima &amp; Saksi"
@@ -154,6 +163,7 @@
                         android:imeOptions="actionDone"
                         android:importantForAutofill="no"
                         android:singleLine="true"
+                        android:text="@={vm.desc}"
                         android:textAlignment="viewStart" />
 
                 </com.google.android.material.textfield.TextInputLayout>

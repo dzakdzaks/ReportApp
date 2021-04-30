@@ -2,6 +2,7 @@ package com.dzakdzaks.laporanbendahara.ui.detail
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.activity.viewModels
@@ -10,10 +11,9 @@ import androidx.databinding.DataBindingUtil
 import com.dzakdzaks.laporanbendahara.R
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.databinding.ActivityDetailBinding
-import com.dzakdzaks.laporanbendahara.utils.extension.convertDateToReadable
-import com.dzakdzaks.laporanbendahara.utils.extension.showMaterialDatePicker
-import com.dzakdzaks.laporanbendahara.utils.extension.startIntent
+import com.dzakdzaks.laporanbendahara.utils.extension.*
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -36,36 +36,97 @@ class DetailActivity : AppCompatActivity() {
         setupView()
     }
 
-    private fun setupView() {
-        binding.apply {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
-            inputDate.editText?.apply {
-                setText(Date(System.currentTimeMillis()).convertDateToReadable())
-                setOnClickListener {
-                    showMaterialDatePicker(true, selectedTimeInMillis) {
-                        selectedTimeInMillis = it
-                        val selectedDateString = Date(it).convertDateToReadable()
-                        inputDate.editText?.setText(selectedDateString)
+    private fun setupView() {
+        binding.vm = viewModel
+
+        intent?.getStringExtra(ACTION)?.let {
+            if (it == ADD) {
+
+            } else {
+                setupDetail()
+            }
+        }
+
+        binding.fab.setOnClickListener {
+
+        }
+    }
+
+    private fun setupDetail() {
+        binding.apply {
+            intent.getParcelableExtra<Report>(REPORT)?.let {
+
+                supportActionBar?.apply {
+                    setDisplayHomeAsUpEnabled(true)
+                    setDisplayShowHomeEnabled(true)
+                    title = if (it.type == Report.INCOME) "Pemasukan" else "Pengeluaran"
+
+                }
+
+                inputDate.apply {
+                    hint = if (it.type == Report.INCOME) "Tanggal Pemasukan" else "Tanggal Pengeluaran"
+                    editText?.setOnClickListener {
+                        showMaterialDatePicker(true, selectedTimeInMillis) { dateLong ->
+                            selectedTimeInMillis = dateLong
+                            val selectedDateString = Date(dateLong).convertDateToReadable()
+                            viewModel.date.value = selectedDateString
+                        }
                     }
                 }
+
+                inputTitle.apply {
+                    hint = if (it.type == Report.INCOME) "Sumber Pemasukan" else "Jenis Pengeluaran"
+                    val adapter = ArrayAdapter(
+                            this@DetailActivity,
+                            R.layout.item_auto_complete,
+                            if (it.type == Report.INCOME) viewModel.getSourceIncome() else viewModel.getTypeExpense()
+                    )
+                    (editText as? AutoCompleteTextView)?.setAdapter(adapter)
+                }
+
+                inputTotal.apply {
+                    hint = if (it.type == Report.INCOME) "Jumlah Pemasukan" else "Jumlah Pengeluaran"
+
+                }
+
+                tvTitleCheckbox.text = if (it.type == Report.INCOME) "Penerima & Saksi" else "Yang Mengeluarkan"
+
+                if (it.type == Report.INCOME) {
+                    inputReceiver.gone()
+                    inputWitness.gone()
+                } else {
+                    inputReceiver.visible()
+                    inputWitness.visible()
+                }
+
+                generateCheckBox(it)
             }
-            val adapter = ArrayAdapter(this@DetailActivity, R.layout.item_auto_complete, viewModel.getSourceIncome())
-            (inputTitle.editText as? AutoCompleteTextView)?.setAdapter(adapter)
         }
+    }
+
+    private fun generateCheckBox(report: Report) {
+
     }
 
     companion object {
 
         private const val REPORT = "report"
-        private const val TYPE = "type"
 
+        private const val ACTION = "action"
         const val ADD = "add"
         const val DETAIL = "detail"
 
-        fun newInstance(activity: Activity, report: Report?, type: String) {
+        fun newInstance(activity: Activity, report: Report?, action: String) {
             activity.startIntent(DetailActivity::class.java) {
                 if (report != null) it.putExtra(REPORT, report)
-                it.putExtra(TYPE, type)
+                it.putExtra(ACTION, action)
             }
         }
     }
