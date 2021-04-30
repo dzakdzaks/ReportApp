@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.dzakdzaks.laporanbendahara.data.MainRepository
 import com.dzakdzaks.laporanbendahara.data.remote.ApiInterface
 import com.dzakdzaks.laporanbendahara.data.remote.model.Created
+import com.dzakdzaks.laporanbendahara.data.remote.model.Data
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.utils.Resource
 import com.dzakdzaks.laporanbendahara.utils.extension.convertDateToReadable
@@ -26,7 +27,7 @@ class DetailViewModel @Inject constructor(
     }
     var countData: Int = 0
 
-    val date = MutableLiveData(Date(System.currentTimeMillis()).convertDateToReadable())
+    val date = MutableLiveData("")
     val title = MutableLiveData("")
     val total = MutableLiveData("")
     val desc = MutableLiveData("")
@@ -75,8 +76,8 @@ class DetailViewModel @Inject constructor(
 
     /** ==========================API========================= */
 
-    private fun addReportData(): List<Report> = if (typeReport == Report.INCOME) {
-        listOf(
+    private fun addReportData(): Data = if (typeReport == Report.INCOME) {
+        val list = listOf(
             Report(
                 id = (countData + 1).toString(),
                 createdAt = Date(System.currentTimeMillis()).getCreatedAtDate(),
@@ -88,8 +89,9 @@ class DetailViewModel @Inject constructor(
                 recipientAndWitnessIncome = "${checkBoxValues.filter { it != "Other" }.joinToString()}, ${other.value!!}"
             )
         )
+        Data(list)
     } else {
-        listOf(
+       val list = listOf(
             Report(
                 id = (countData + 1).toString(),
                 createdAt = Date(System.currentTimeMillis()).getCreatedAtDate(),
@@ -103,10 +105,11 @@ class DetailViewModel @Inject constructor(
                 descriptionExpense = desc.value!!
             )
         )
+        Data(list)
     }
 
     fun addReport() {
-        /*_shouldAddReport.value = true*/
+        _shouldAddReport.value = true
         Timber.d("wakwaw ${Gson().toJson(addReportData())}")
     }
 

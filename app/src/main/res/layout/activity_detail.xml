@@ -13,249 +13,251 @@
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-    <androidx.core.widget.NestedScrollView
+        android:id="@+id/parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_background"
         android:clickable="true"
+        android:descendantFocusability="beforeDescendants"
         android:fillViewport="true"
         android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:isScrollContainer="true"
-        android:scrollbars="vertical"
-        tools:context=".ui.detail.DetailActivity">
+        android:focusableInTouchMode="true">
 
-        <RelativeLayout
+
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:background="@color/color_background"
+            android:isScrollContainer="true"
+            android:scrollbars="vertical"
+            tools:context=".ui.detail.DetailActivity">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
-                    android:id="@+id/containerType"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <RadioGroup
-                        android:id="@+id/toggle"
+                    <LinearLayout
+                        android:id="@+id/containerType"
                         android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:layout_marginLeft="50dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center">
+
+                        <RadioGroup
+                            android:id="@+id/toggle"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:layout_marginLeft="50dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginRight="50dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@drawable/radio_button_stroke"
+                            android:checkedButton="@+id/rbIncome"
+                            android:orientation="horizontal">
+
+                            <RadioButton
+                                android:id="@+id/rbIncome"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="1dp"
+                                android:layout_marginTop="1dp"
+                                android:layout_marginBottom="1dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/radio_button_background"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:text="Pemasukan"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+
+                            <RadioButton
+                                android:id="@+id/rbExpense"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="1dp"
+                                android:layout_marginEnd="1dp"
+                                android:layout_marginBottom="1dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/radio_button_background"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:text="Pengeluaran"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+                        </RadioGroup>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputDate"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Tanggal">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:imeOptions="actionNext"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:text="@={vm.date}"
+                            android:textAlignment="viewStart" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputTitle"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:layout_marginRight="50dp"
-                        android:layout_marginBottom="16dp"
-                        android:background="@drawable/radio_button_stroke"
-                        android:checkedButton="@+id/rbIncome"
-                        android:orientation="horizontal">
+                        android:hint="Sumber Pemasukan">
 
-                        <RadioButton
-                            android:id="@+id/rbIncome"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="1dp"
-                            android:layout_marginTop="1dp"
-                            android:layout_marginBottom="1dp"
-                            android:layout_weight="1"
-                            android:background="@drawable/radio_button_background"
-                            android:button="@null"
-                            android:gravity="center"
-                            android:text="Pemasukan"
-                            android:textColor="@color/white"
-                            android:textStyle="bold" />
+                        <AutoCompleteTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:text="@={vm.title}"
+                            tools:ignore="LabelFor" />
 
-                        <RadioButton
-                            android:id="@+id/rbExpense"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="1dp"
-                            android:layout_marginEnd="1dp"
-                            android:layout_marginBottom="1dp"
-                            android:layout_weight="1"
-                            android:background="@drawable/radio_button_background"
-                            android:button="@null"
-                            android:gravity="center"
-                            android:text="Pengeluaran"
-                            android:textColor="@color/white"
-                            android:textStyle="bold" />
-                    </RadioGroup>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                </LinearLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputDate"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Tanggal">
-
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputTotal"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:imeOptions="actionNext"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        android:singleLine="true"
-                        android:text="@={vm.date}"
-                        android:textAlignment="viewStart" />
+                        android:layout_marginTop="16dp"
+                        android:hint="Jumlah Pemasukan">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:importantForAutofill="no"
+                            android:inputType="number"
+                            android:singleLine="true"
+                            android:text="@={vm.total}"
+                            android:textAlignment="viewStart" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputTitle"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="Sumber Pemasukan">
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <AutoCompleteTextView
+                    <LinearLayout
+                        android:id="@+id/linearCheckbox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="none"
-                        android:text="@={vm.title}"
-                        tools:ignore="LabelFor" />
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvTitleCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Penerima &amp; Saksi"
+                            android:textSize="16sp" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputTotal"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="Jumlah Pemasukan">
+                    </LinearLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputOther"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:imeOptions="actionNext"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:singleLine="true"
-                        android:text="@={vm.total}"
-                        android:textAlignment="viewStart" />
+                        android:layout_marginTop="16dp"
+                        android:hint="Other"
+                        android:visibility="gone">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:importantForAutofill="no"
+                            android:singleLine="true"
+                            android:text="@={vm.other}"
+                            android:textAlignment="viewStart" />
 
-                <LinearLayout
-                    android:id="@+id/linearCheckbox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="vertical">
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tvTitleCheckbox"
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputReceiver"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Yang Menerima"
+                        android:visibility="gone">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:text="@={vm.receiver}"
+                            android:textAlignment="viewStart" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputWitness"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Saksi"
+                        android:visibility="gone">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:text="@={vm.witness}"
+                            android:textAlignment="viewStart" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputDesc"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Keterangan">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionDone"
+                            android:importantForAutofill="no"
+                            android:singleLine="true"
+                            android:text="@={vm.desc}"
+                            android:textAlignment="viewStart" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <View
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Penerima &amp; Saksi"
-                        android:textSize="16sp" />
+                        android:layout_height="100dp"
+                        android:layout_margin="12dp" />
 
                 </LinearLayout>
+            </RelativeLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputOther"
-                    android:visibility="gone"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="Other">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionNext"
-                        android:importantForAutofill="no"
-                        android:singleLine="true"
-                        android:text="@={vm.other}"
-                        android:textAlignment="viewStart" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputReceiver"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="Yang Menerima"
-                    android:visibility="gone">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionNext"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        android:singleLine="true"
-                        android:text="@={vm.receiver}"
-                        android:textAlignment="viewStart" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputWitness"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="Saksi"
-                    android:visibility="gone">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionNext"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        android:singleLine="true"
-                        android:text="@={vm.witness}"
-                        android:textAlignment="viewStart" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputDesc"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="Keterangan">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionDone"
-                        android:importantForAutofill="no"
-                        android:singleLine="true"
-                        android:text="@={vm.desc}"
-                        android:textAlignment="viewStart" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <View
-                    android:layout_margin="12dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="100dp"/>
-
-            </LinearLayout>
-        </RelativeLayout>
-
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -266,6 +268,26 @@
             app:srcCompat="@drawable/ic_add"
             app:tint="@color/white" />
 
+        <FrameLayout
+            android:id="@+id/frameLoading"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/dark_transparent">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="24dp" />
+            </com.google.android.material.card.MaterialCardView>
+        </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

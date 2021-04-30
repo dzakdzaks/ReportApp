@@ -11,4 +11,5 @@
     <color name="color_background">#F2F2F7</color>
     <color name="default_text_view">#757575</color>
     <color name="grey">#808080</color>
+    <color name="dark_transparent">#80303030</color>
 </resources>

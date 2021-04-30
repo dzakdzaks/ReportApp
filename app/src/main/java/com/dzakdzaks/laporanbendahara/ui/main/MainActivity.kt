@@ -2,6 +2,8 @@ package com.dzakdzaks.laporanbendahara.ui.main
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -27,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     }
     private val viewModel: MainViewModel by viewModels()
     private lateinit var mainAdapter: MainAdapter
+
+    private val addForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultFromAdd(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupClicked() {
         binding.apply {
             fab.setOnClickListener {
-                DetailActivity.newInstance(this@MainActivity, null, DetailActivity.ADD, mainAdapter.getCountBody())
+                addForResult.launch(DetailActivity.newInstanceResult(this@MainActivity, null, DetailActivity.ADD, mainAdapter.getCountBody()))
             }
         }
     }
@@ -69,8 +73,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 is Resource.Success -> {
+                    viewModel.reportsData.clear()
                     viewModel.reportsData.addAll(viewModel.customDataHeader(it.data))
                     mainAdapter.setNewInstance(viewModel.reportsData)
+                    mainAdapter.notifyDataSetChanged()
                 }
 
                 is Resource.Error -> {
@@ -80,5 +86,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+    }
+
+    private fun resultFromAdd(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            viewModel.onNewReportAdded()
+        }
     }
 }

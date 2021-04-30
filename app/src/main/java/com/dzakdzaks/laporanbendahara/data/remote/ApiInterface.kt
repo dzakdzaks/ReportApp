@@ -1,6 +1,7 @@
 package com.dzakdzaks.laporanbendahara.data.remote
 
 import com.dzakdzaks.laporanbendahara.data.remote.model.Created
+import com.dzakdzaks.laporanbendahara.data.remote.model.Data
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.utils.Resource
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,6 @@ interface ApiInterface {
 
     @POST(SHEET_DB)
     fun addReport(
-          @Body data: List<Report>
+          @Body data: Data
     ): Flow<Resource<Created>>
 }

@@ -1,6 +1,7 @@
 package com.dzakdzaks.laporanbendahara.ui.detail
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewGroup
@@ -12,8 +13,10 @@ import androidx.databinding.DataBindingUtil
 import com.dzakdzaks.laporanbendahara.R
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.databinding.ActivityDetailBinding
+import com.dzakdzaks.laporanbendahara.utils.Resource
 import com.dzakdzaks.laporanbendahara.utils.extension.*
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.util.*
 
 
@@ -37,7 +40,9 @@ class DetailActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
+
         setupView()
+        observeData()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -66,6 +71,7 @@ class DetailActivity : AppCompatActivity() {
         }
 
         binding.fab.setOnClickListener {
+            hideSoftKeyBoard()
             viewModel.addReport()
         }
     }
@@ -106,7 +112,7 @@ class DetailActivity : AppCompatActivity() {
                     showMaterialDatePicker(true, viewModel.selectedTimeInMillis) { dateLong ->
                         viewModel.selectedTimeInMillis = dateLong
                         val selectedDateString = Date(dateLong).convertDateToReadable()
-                        viewModel.date.value = selectedDateString
+                        editText?.setText(selectedDateString)
                     }
                 }
             }
@@ -143,7 +149,7 @@ class DetailActivity : AppCompatActivity() {
     private fun setupAdd() {
         binding.apply {
             containerType.visible()
-
+            supportActionBar?.title = "Buat Laporan"
             conditionalViewByIsChecked(toggle.checkedRadioButtonId)
             toggle.setOnCheckedChangeListener { _, checkedId -> conditionalViewByIsChecked(checkedId) }
         }
@@ -151,10 +157,8 @@ class DetailActivity : AppCompatActivity() {
 
     private fun conditionalViewByIsChecked(@IdRes checkedId: Int) {
         binding.apply {
-            viewModel.checkBoxValues.clear()
-            inputOther.gone()
 
-            supportActionBar?.title = "Buat Laporan"
+            resetData()
 
             val isExpense = checkedId == R.id.rbExpense
             if (isExpense) {
@@ -177,7 +181,7 @@ class DetailActivity : AppCompatActivity() {
                     showMaterialDatePicker(true, viewModel.selectedTimeInMillis) { dateLong ->
                         viewModel.selectedTimeInMillis = dateLong
                         val selectedDateString = Date(dateLong).convertDateToReadable()
-                        viewModel.date.value = selectedDateString
+                        editText?.setText(selectedDateString)
                     }
                 }
             }
@@ -211,6 +215,22 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun resetData() {
+        binding.apply {
+            viewModel.checkBoxValues.clear()
+            inputOther.gone()
+            parent.requestFocus()
+            hideSoftKeyBoard()
+            inputDate.editText?.setText("")
+            inputTitle.editText?.setText("")
+            inputTotal.editText?.setText("")
+            inputOther.editText?.setText("")
+            inputReceiver.editText?.setText("")
+            inputWitness.editText?.setText("")
+            inputDesc.editText?.setText("")
+        }
+    }
+
     /**=============================FINISH ADD REPORT=================================*/
 
 
@@ -224,6 +244,32 @@ class DetailActivity : AppCompatActivity() {
             if (viewModel.checkBoxValues.contains("Other")) binding.inputOther.visible() else binding.inputOther.gone()
         }
         binding.linearCheckbox.addView(checkBox)
+    }
+
+    private fun observeData() {
+        viewModel.addReportResponse.observe(this, {
+            when (it) {
+
+                is Resource.Loading -> {
+                    binding.apply {
+                        if (it.isLoading) fab.disable() else fab.enable()
+                        frameLoading.toggleLoading(isLoading = it.isLoading)
+                    }
+                }
+
+                is Resource.Success -> {
+                   Toast.makeText(this, "Laporan berhasil dibuat", Toast.LENGTH_SHORT).show()
+                    setResult(RESULT_OK)
+                    finish()
+                }
+
+                is Resource.Error -> {
+                    Timber.d("wakwaw ${it.errorData}")
+                    Toast.makeText(this, it.errorData, Toast.LENGTH_SHORT).show();
+                }
+            }
+        })
+
     }
 
     companion object {
@@ -243,5 +289,12 @@ class DetailActivity : AppCompatActivity() {
                 it.putExtra(COUNT, count)
             }
         }
+
+        fun newInstanceResult(activity: Activity, report: Report?, action: String, count: Int): Intent =
+            activity.startIntentResult(DetailActivity::class.java) {
+                if (report != null) it.putExtra(REPORT, report)
+                it.putExtra(ACTION, action)
+                it.putExtra(COUNT, count)
+            }
     }
 }
