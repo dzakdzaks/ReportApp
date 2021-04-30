@@ -72,3 +72,10 @@ fun View.toggleLoading(isLoading: Boolean) {
     else
         this.gone()
 }
+
+fun View.animateRotate(isExpanded: Boolean) {
+    if (isExpanded)
+        animate().setDuration(200).rotation(180f)
+    else
+        animate().setDuration(200).rotation(0f)
+}

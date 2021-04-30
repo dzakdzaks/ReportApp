@@ -11,6 +11,18 @@ fun String.currencyFormat(): String {
     return format.format(this.toLong())
 }
 
+fun Date?.convertDateToReadable(): String {
+    var result = ""
+    try {
+        this?.let {
+            result = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id", "ID")).format(it)
+        }
+    } catch (e: ParseException) {
+        e.printStackTrace()
+    }
+    return result
+}
+
 fun String?.getFullDateTimeJustDate(): String {
     var result = "-"
     try {

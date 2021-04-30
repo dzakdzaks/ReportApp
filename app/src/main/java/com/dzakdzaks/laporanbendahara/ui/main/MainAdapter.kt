@@ -1,4 +1,4 @@
-package com.dzakdzaks.laporanbendahara.ui
+package com.dzakdzaks.laporanbendahara.ui.main
 
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter

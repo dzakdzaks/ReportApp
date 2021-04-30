@@ -1,4 +1,4 @@
-package com.dzakdzaks.laporanbendahara.ui
+package com.dzakdzaks.laporanbendahara.ui.main
 
 import android.os.Bundle
 import android.widget.Toast
@@ -8,7 +8,9 @@ import androidx.databinding.DataBindingUtil
 import com.dzakdzaks.laporanbendahara.R
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.databinding.ActivityMainBinding
+import com.dzakdzaks.laporanbendahara.ui.detail.DetailActivity
 import com.dzakdzaks.laporanbendahara.utils.Resource
+import com.dzakdzaks.laporanbendahara.utils.extension.startIntent
 import com.dzakdzaks.laporanbendahara.utils.extension.toggleLoading
 import com.oushangfeng.pinnedsectionitemdecoration.PinnedHeaderItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,41 +19,48 @@ import timber.log.Timber
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private val binding: ActivityMainBinding by lazy {
+        DataBindingUtil.setContentView(
+                this,
+                R.layout.activity_main
+        )
+    }
     private val viewModel: MainViewModel by viewModels()
     private lateinit var mainAdapter: MainAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val binding =
-            DataBindingUtil.setContentView<ActivityMainBinding>(
-                this,
-                R.layout.activity_main
-            )
-
-        binding.vm = viewModel
-
-        setupAdapter(binding)
-        observeData(binding)
+        setupAdapter()
+        setupClicked()
+        observeData()
     }
 
-    private fun setupAdapter(binding: ActivityMainBinding) {
+    private fun setupAdapter() {
         mainAdapter = MainAdapter(null) {
-            Toast.makeText(this, it.type, Toast.LENGTH_SHORT).show()
+            DetailActivity.newInstance(this, it, DetailActivity.DETAIL)
         }
         binding.list.apply {
             adapter = mainAdapter
             addItemDecoration(
-                PinnedHeaderItemDecoration.Builder(Report.ITEM_HEADER)
-                    .enableDivider(false)
-                    .disableHeaderClick(true)
-                    .create()
+                    PinnedHeaderItemDecoration.Builder(Report.ITEM_HEADER)
+                            .enableDivider(false)
+                            .disableHeaderClick(true)
+                            .create()
             )
         }
 
     }
 
-    private fun observeData(binding: ActivityMainBinding) {
+    private fun setupClicked() {
+        binding.apply {
+            fab.setOnClickListener {
+                DetailActivity.newInstance(this@MainActivity, null, DetailActivity.ADD)
+            }
+        }
+    }
+
+    private fun observeData() {
         viewModel.reports.observe(this, {
             when (it) {
 

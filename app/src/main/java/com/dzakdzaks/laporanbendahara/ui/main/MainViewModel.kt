@@ -1,4 +1,4 @@
-package com.dzakdzaks.laporanbendahara.ui
+package com.dzakdzaks.laporanbendahara.ui.main
 
 import androidx.lifecycle.*
 import com.dzakdzaks.laporanbendahara.data.MainRepository
@@ -21,17 +21,9 @@ class MainViewModel @Inject constructor(
 
     val reportsData: MutableList<Report> = mutableListOf()
 
-    private val _shouldLaunchAddReport = SingleLiveEvent<Boolean>()
-    val shouldLaunchAddReport: LiveData<Boolean> = _shouldLaunchAddReport
-
 
     init {
         _shouldLoadReports.value = true
-    }
-
-    fun onAddReportClicked() {
-        Timber.d("onAddNameClicked: Add name clicked ")
-        _shouldLaunchAddReport.value = true
     }
 
     fun onRefreshClicked() {
