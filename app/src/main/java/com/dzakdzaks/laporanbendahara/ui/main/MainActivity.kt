@@ -61,6 +61,10 @@ class MainActivity : AppCompatActivity() {
             fab.setOnClickListener {
                 addForResult.launch(DetailActivity.newInstanceResult(this@MainActivity, null, DetailActivity.ADD, mainAdapter.getCountBody()))
             }
+            swipeRefresh.setOnRefreshListener {
+                viewModel.onRefresh()
+                swipeRefresh.isRefreshing = false
+            }
         }
     }
 

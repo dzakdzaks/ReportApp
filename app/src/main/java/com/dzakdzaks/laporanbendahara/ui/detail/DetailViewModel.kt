@@ -2,12 +2,10 @@ package com.dzakdzaks.laporanbendahara.ui.detail
 
 import androidx.lifecycle.*
 import com.dzakdzaks.laporanbendahara.data.MainRepository
-import com.dzakdzaks.laporanbendahara.data.remote.ApiInterface
 import com.dzakdzaks.laporanbendahara.data.remote.model.Created
 import com.dzakdzaks.laporanbendahara.data.remote.model.Data
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.utils.Resource
-import com.dzakdzaks.laporanbendahara.utils.extension.convertDateToReadable
 import com.dzakdzaks.laporanbendahara.utils.extension.getCreatedAtDate
 import com.dzakdzaks.laporanbendahara.utils.extension.parseFromReadableToSimpleFormat
 import com.google.gson.Gson
@@ -18,8 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-        private val mainRepository: MainRepository
-): ViewModel() {
+    private val mainRepository: MainRepository
+) : ViewModel() {
 
     private val _shouldAddReport = MutableLiveData<Boolean>()
     val addReportResponse: LiveData<Resource<Created>> = _shouldAddReport.switchMap {
@@ -41,42 +39,47 @@ class DetailViewModel @Inject constructor(
     var selectedTimeInMillis = System.currentTimeMillis()
 
     fun getSourceIncome(): List<String> = listOf(
-            "Teromol Masjid Harian",
-            "Infaq Perorangan",
-            "Infaq Non Perorangan",
-            "Voucher Multi Amal Jariyah Ramadhan",
-            "Voucher Santunan Yatim & Janda Dhuafa",
-            "Voucher",
-            "Lain-lain",
+        "Teromol Masjid Harian",
+        "Infaq Perorangan",
+        "Infaq Non Perorangan",
+        "Voucher Multi Amal Jariyah Ramadhan",
+        "Voucher Santunan Yatim & Janda Dhuafa",
+        "Voucher",
+        "Lain-lain",
     )
 
     fun getTypeExpense(): List<String> = listOf(
-            "Transport Ustad / Narasumber",
-            "Belanja Konsumsi",
-            "Belanja Cetak (Fotokopi, Spanduk, dll)",
-            "Belanja ATK",
-            "Kegiatan",
-            "Lainnya",
+        "Transport Ustad / Narasumber",
+        "Belanja Konsumsi",
+        "Belanja Cetak (Fotokopi, Spanduk, dll)",
+        "Belanja ATK",
+        "Kegiatan",
+        "Lainnya",
     )
 
     fun getListReceiverAndWitness(): List<String> = listOf(
-            "Faat",
-            "Daffa",
-            "Gibran",
-            "Kathan",
-            "Ali",
-            "Rek Masjid",
-            "Other",
+        "Faat",
+        "Daffa",
+        "Gibran",
+        "Kathan",
+        "Ali",
+        "Rek Masjid",
+        "Other",
     )
 
     fun getListWhoExpense(): List<String> = listOf(
-            "Faat",
-            "Other",
+        "Faat",
+        "Other",
     )
 
     /** ==========================API========================= */
 
     private fun addReportData(): Data = if (typeReport == Report.INCOME) {
+        val checkBoxString =
+            if (other.value.isNullOrEmpty())
+                checkBoxValues.filter { it != "Other" }.joinToString()
+            else
+                "${checkBoxValues.filter { it != "Other" }.joinToString()}, ${other.value!!}"
         val list = listOf(
             Report(
                 id = (countData + 1).toString(),
@@ -86,12 +89,17 @@ class DetailViewModel @Inject constructor(
                 sourceIncome = title.value!!,
                 totalIncome = total.value!!,
                 descriptionIncome = desc.value!!,
-                recipientAndWitnessIncome = "${checkBoxValues.filter { it != "Other" }.joinToString()}, ${other.value!!}"
+                recipientAndWitnessIncome = checkBoxString
             )
         )
         Data(list)
     } else {
-       val list = listOf(
+        val checkBoxString =
+            if (other.value.isNullOrEmpty())
+                checkBoxValues.filter { it != "Other" }.joinToString()
+            else
+                "${checkBoxValues.filter { it != "Other" }.joinToString()}, ${other.value!!}"
+        val list = listOf(
             Report(
                 id = (countData + 1).toString(),
                 createdAt = Date(System.currentTimeMillis()).getCreatedAtDate(),
@@ -99,7 +107,7 @@ class DetailViewModel @Inject constructor(
                 dateExpense = date.value!!.parseFromReadableToSimpleFormat(),
                 typeExpense = title.value!!,
                 totalExpense = total.value!!,
-                whoExpense = "${checkBoxValues.filter { it != "Other" }.joinToString()}, ${other.value!!}",
+                whoExpense = checkBoxString,
                 whoReceived = receiver.value!!,
                 witnessExpense = witness.value!!,
                 descriptionExpense = desc.value!!
