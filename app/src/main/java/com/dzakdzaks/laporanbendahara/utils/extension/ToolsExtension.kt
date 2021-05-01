@@ -21,7 +21,7 @@ fun Date?.getCreatedAtDate(): String {
     var result = ""
     try {
         this?.let {
-            result = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale("id", "ID")).format(it)
+            result = SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale("id", "ID")).format(it)
         }
     } catch (e: ParseException) {
         e.printStackTrace()
@@ -35,7 +35,7 @@ fun String?.parseFromReadableToSimpleFormat(): String {
         this?.let { value ->
             val date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id", "ID")).parse(value)
             date?.let {
-                result = SimpleDateFormat("dd/MM/yyyy", Locale("id", "ID")).format(it)
+                result = SimpleDateFormat("MM/dd/yyyy", Locale("id", "ID")).format(it)
             }
         }
     } catch (e: ParseException) {
@@ -60,7 +60,7 @@ fun String?.getFullDateTimeJustDate(): String {
     var result = "-"
     try {
         this?.let { value ->
-            val date = SimpleDateFormat("dd/MM/yyyy", Locale("id", "ID")).parse(value)
+            val date = SimpleDateFormat("MM/dd/yyyy", Locale("id", "ID")).parse(value)
             date?.let {
                 result = SimpleDateFormat("dd/MM/yyyy", Locale("id", "ID")).format(it)
             }
@@ -75,7 +75,7 @@ fun String?.getFullDateTimeJustDateReadable(): String {
     var result = "-"
     try {
         this?.let { value ->
-            val date = SimpleDateFormat("dd/MM/yyyy", Locale("id", "ID")).parse(value)
+            val date = SimpleDateFormat("MM/dd/yyyy", Locale("id", "ID")).parse(value)
             date?.let {
                 result = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id", "ID")).format(it)
             }
