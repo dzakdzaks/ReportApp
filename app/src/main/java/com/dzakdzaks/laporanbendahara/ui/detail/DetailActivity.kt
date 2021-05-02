@@ -9,12 +9,15 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import com.dzakdzaks.laporanbendahara.R
 import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.databinding.ActivityDetailBinding
 import com.dzakdzaks.laporanbendahara.utils.Resource
 import com.dzakdzaks.laporanbendahara.utils.extension.*
+import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
@@ -69,34 +72,17 @@ class DetailActivity : AppCompatActivity() {
             }
 
         }
-
-        binding.fab.setOnClickListener {
-            hideSoftKeyBoard()
-            viewModel.addReport()
-        }
     }
 
     /**=============================DETAIL REPORT=================================*/
 
     private fun setupDetail() {
         binding.apply {
-            containerType.gone()
+            rbIncome.disable()
+            rbExpense.disable()
             intent.getParcelableExtra<Report>(REPORT)?.let {
-
                 conditionalViewByReport(report = it)
-
-                tvTitleCheckbox.text = if (it.type == Report.INCOME) "Penerima & Saksi" else "Yang Mengeluarkan"
-
                 generateCheckBoxByReport(it)
-
-                if (it.type == Report.INCOME) {
-                    inputReceiver.gone()
-                    inputWitness.gone()
-                } else {
-                    inputReceiver.visible()
-                    inputWitness.visible()
-                }
-
             }
         }
     }
@@ -104,7 +90,17 @@ class DetailActivity : AppCompatActivity() {
     private fun conditionalViewByReport(report: Report) {
         binding.apply {
 
+            if (report.type == Report.INCOME) {
+                inputReceiver.gone()
+                inputWitness.gone()
+            } else {
+                inputReceiver.visible()
+                inputWitness.visible()
+            }
+
             supportActionBar?.title = if (report.type == Report.INCOME) "Laporan Pemasukan" else "Laporan Pengeluaran"
+
+            tvTitleCheckbox.text = if (report.type == Report.INCOME) "Penerima & Saksi" else "Yang Mengeluarkan"
 
             inputDate.apply {
                 hint = if (report.type == Report.INCOME) "Tanggal Pemasukan" else "Tanggal Pengeluaran"
@@ -124,20 +120,90 @@ class DetailActivity : AppCompatActivity() {
                         R.layout.item_auto_complete,
                         if (report.type == Report.INCOME) viewModel.getSourceIncome() else viewModel.getTypeExpense()
                 )
-                (editText as? AutoCompleteTextView)?.setAdapter(adapter)
+                (editText as? AutoCompleteTextView)?.apply {
+                    setAdapter(adapter)
+                    doOnTextChanged { text, _, _, _ ->
+                        viewModel.title.value = text.toString()
+                    }
+                }
             }
 
             inputTotal.apply {
                 hint = if (report.type == Report.INCOME) "Jumlah Pemasukan" else "Jumlah Pengeluaran"
             }
+
+            /*set data*/
+            if (report.type == Report.INCOME) {
+                toggle.check(R.id.rbIncome)
+                viewModel.apply {
+                    date.value = report.dateIncome.getFullDateTimeJustDateReadable()
+                    (inputTitle.editText as? AutoCompleteTextView)?.setText(report.sourceIncome, false)
+                    total.value = report.totalIncome
+                    desc.value = report.descriptionIncome
+                }
+                /*inputDate.editText?.setText(report.dateIncome.getFullDateTimeJustDateReadable())
+                inputTitle.editText?.setText(report.sourceIncome)
+                inputTotal.editText?.setText(report.totalIncome)
+                inputDesc.editText?.setText(report.descriptionIncome)*/
+
+            } else {
+                toggle.check(R.id.rbExpense)
+                viewModel.apply {
+                    date.value = report.dateExpense.getFullDateTimeJustDateReadable()
+                    (inputTitle.editText as? AutoCompleteTextView)?.setText(report.typeExpense, false)
+                    total.value = report.totalExpense
+                    receiver.value = report.whoReceived
+                    witness.value = report.witnessExpense
+                    desc.value = report.descriptionExpense
+                }
+                /*inputDate.editText?.setText(report.dateExpense.getFullDateTimeJustDateReadable())
+                inputTitle.editText?.setText(report.typeExpense)
+                inputTotal.editText?.setText(report.totalExpense)
+                inputReceiver.editText?.setText(report.whoReceived)
+                inputWitness.editText?.setText(report.witnessExpense)
+                inputDesc.editText?.setText(report.descriptionExpense)*/
+            }
+         /*set data*/
         }
     }
 
     private fun generateCheckBoxByReport(report: Report) {
         if (report.type == Report.INCOME) {
-            viewModel.getListReceiverAndWitness().forEach { createCheckBox(it) }
+            viewModel.getListReceiverAndWitness().forEach { viewModel.checkboxes.add(createCheckBox(it)) }
         } else {
-            viewModel.getListWhoExpense().forEach { createCheckBox(it) }
+            viewModel.getListWhoExpense().forEach { viewModel.checkboxes.add(createCheckBox(it)) }
+        }
+        setCheckedCheckBox(report)
+    }
+
+    private fun setCheckedCheckBox(report: Report) {
+        val listData =
+                (if (report.type == Report.INCOME) report.recipientAndWitnessIncome
+                else report.whoExpense).split(", ").filter { it != "" }
+
+        val listCBText = mutableListOf<String>()
+        viewModel.checkboxes.forEach {
+            listCBText.add(it.text.toString())
+        }
+
+        viewModel.checkboxes.forEach { checkBox ->
+
+            val listOther = mutableListOf<String>()
+
+            listData.forEach { value ->
+                if (value == checkBox.text) {
+                    checkBox.isChecked = true
+                } else {
+                    if (checkBox.text == "Other" && !listCBText.contains(value)) {
+                        checkBox.isChecked = true
+                        listOther.add(value)
+                    }
+                }
+            }
+
+            if (!listOther.isNullOrEmpty()) {
+                viewModel.other.value = listOther.joinToString()
+            }
         }
     }
 
@@ -152,6 +218,10 @@ class DetailActivity : AppCompatActivity() {
             supportActionBar?.title = "Buat Laporan"
             conditionalViewByIsChecked(toggle.checkedRadioButtonId)
             toggle.setOnCheckedChangeListener { _, checkedId -> conditionalViewByIsChecked(checkedId) }
+            binding.fab.setOnClickListener {
+                hideSoftKeyBoard()
+                viewModel.addReport()
+            }
         }
     }
 
@@ -193,7 +263,12 @@ class DetailActivity : AppCompatActivity() {
                         R.layout.item_auto_complete,
                         if (isExpense) viewModel.getTypeExpense() else viewModel.getSourceIncome()
                 )
-                (editText as? AutoCompleteTextView)?.setAdapter(adapter)
+                (editText as? AutoCompleteTextView)?.apply {
+                    setAdapter(adapter)
+                    doOnTextChanged { text, _, _, _ ->
+                        viewModel.title.value = text.toString()
+                    }
+                }
             }
 
             inputTotal.apply {
@@ -217,7 +292,7 @@ class DetailActivity : AppCompatActivity() {
 
     private fun resetData() {
         binding.apply {
-            viewModel.checkBoxValues.clear()
+            viewModel.checkboxes.clear()
             inputOther.gone()
             parent.requestFocus()
             hideSoftKeyBoard()
@@ -234,16 +309,21 @@ class DetailActivity : AppCompatActivity() {
     /**=============================FINISH ADD REPORT=================================*/
 
 
-    private fun createCheckBox(value: String) {
-        val checkBox = CheckBox(this)
+    private fun createCheckBox(value: String): MaterialCheckBox {
+        val checkBox = MaterialCheckBox(this)
         checkBox.text = value
         checkBox.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         checkBox.setOnCheckedChangeListener { cb, isChecked ->
             val title = cb.text.toString()
-            if (isChecked) viewModel.checkBoxValues.add(title) else viewModel.checkBoxValues.remove(title)
-            if (viewModel.checkBoxValues.contains("Other")) binding.inputOther.visible() else binding.inputOther.gone()
+            if (isChecked) viewModel.checkBoxesValue.add(title) else viewModel.checkBoxesValue.remove(title)
+
+            val otherCheck = viewModel.checkBoxesValue.find { it == "Other" }
+            otherCheck?.let {
+                binding.inputOther.visible()
+            } ?: binding.inputOther.gone()
         }
         binding.linearCheckbox.addView(checkBox)
+        return checkBox
     }
 
     private fun observeData() {
@@ -258,7 +338,7 @@ class DetailActivity : AppCompatActivity() {
                 }
 
                 is Resource.Success -> {
-                   Toast.makeText(this, "Laporan berhasil dibuat", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Laporan berhasil dibuat", Toast.LENGTH_SHORT).show()
                     setResult(RESULT_OK)
                     finish()
                 }
@@ -282,19 +362,11 @@ class DetailActivity : AppCompatActivity() {
 
         private const val COUNT = "count"
 
-        fun newInstance(activity: Activity, report: Report?, action: String, count: Int) {
-            activity.startIntent(DetailActivity::class.java) {
-                if (report != null) it.putExtra(REPORT, report)
-                it.putExtra(ACTION, action)
-                it.putExtra(COUNT, count)
-            }
-        }
-
         fun newInstanceResult(activity: Activity, report: Report?, action: String, count: Int): Intent =
-            activity.startIntentResult(DetailActivity::class.java) {
-                if (report != null) it.putExtra(REPORT, report)
-                it.putExtra(ACTION, action)
-                it.putExtra(COUNT, count)
-            }
+                activity.startIntentResult(DetailActivity::class.java) {
+                    if (report != null) it.putExtra(REPORT, report)
+                    it.putExtra(ACTION, action)
+                    it.putExtra(COUNT, count)
+                }
     }
 }

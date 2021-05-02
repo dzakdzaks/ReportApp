@@ -1,5 +1,6 @@
 package com.dzakdzaks.laporanbendahara.ui.detail
 
+import android.widget.CheckBox
 import androidx.lifecycle.*
 import com.dzakdzaks.laporanbendahara.data.MainRepository
 import com.dzakdzaks.laporanbendahara.data.remote.model.Created
@@ -8,6 +9,7 @@ import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.utils.Resource
 import com.dzakdzaks.laporanbendahara.utils.extension.getCreatedAtDate
 import com.dzakdzaks.laporanbendahara.utils.extension.parseFromReadableToSimpleFormat
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import timber.log.Timber
@@ -34,7 +36,8 @@ class DetailViewModel @Inject constructor(
     val witness = MutableLiveData("")
 
     var typeReport: String = ""
-    val checkBoxValues = mutableListOf<String>()
+    val checkboxes = mutableListOf<MaterialCheckBox>()
+    val checkBoxesValue = mutableListOf<String>()
 
     var selectedTimeInMillis = System.currentTimeMillis()
 
@@ -77,9 +80,9 @@ class DetailViewModel @Inject constructor(
     private fun addReportData(): Data = if (typeReport == Report.INCOME) {
         val checkBoxString =
             if (other.value.isNullOrEmpty())
-                checkBoxValues.filter { it != "Other" }.joinToString()
+                checkBoxesValue.filter { it != "Other" }.joinToString()
             else
-                "${checkBoxValues.filter { it != "Other" }.joinToString()}, ${other.value!!}"
+                "${checkBoxesValue.filter { it != "Other" }.joinToString()}, ${other.value!!}"
         val list = listOf(
             Report(
                 id = (countData + 1).toString(),
@@ -96,9 +99,9 @@ class DetailViewModel @Inject constructor(
     } else {
         val checkBoxString =
             if (other.value.isNullOrEmpty())
-                checkBoxValues.filter { it != "Other" }.joinToString()
+                checkBoxesValue.filter { it != "Other" }.joinToString()
             else
-                "${checkBoxValues.filter { it != "Other" }.joinToString()}, ${other.value!!}"
+                "${checkBoxesValue.filter { it != "Other" }.joinToString()}, ${other.value!!}"
         val list = listOf(
             Report(
                 id = (countData + 1).toString(),

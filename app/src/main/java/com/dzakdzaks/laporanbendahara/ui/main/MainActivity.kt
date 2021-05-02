@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupAdapter() {
         mainAdapter = MainAdapter(null) {
-            DetailActivity.newInstance(this, it, DetailActivity.DETAIL, mainAdapter.getCountBody())
+            addForResult.launch(DetailActivity.newInstanceResult(this@MainActivity, it, DetailActivity.DETAIL, mainAdapter.getCountBody()))
         }
         binding.list.apply {
             adapter = mainAdapter
