@@ -3,9 +3,7 @@ package com.dzakdzaks.laporanbendahara.ui.detail
 import android.widget.CheckBox
 import androidx.lifecycle.*
 import com.dzakdzaks.laporanbendahara.data.MainRepository
-import com.dzakdzaks.laporanbendahara.data.remote.model.Created
-import com.dzakdzaks.laporanbendahara.data.remote.model.Data
-import com.dzakdzaks.laporanbendahara.data.remote.model.Report
+import com.dzakdzaks.laporanbendahara.data.remote.model.*
 import com.dzakdzaks.laporanbendahara.utils.Resource
 import com.dzakdzaks.laporanbendahara.utils.extension.getCreatedAtDate
 import com.dzakdzaks.laporanbendahara.utils.extension.parseFromReadableToSimpleFormat
@@ -21,10 +19,23 @@ class DetailViewModel @Inject constructor(
     private val mainRepository: MainRepository
 ) : ViewModel() {
 
+    var report: Report? = null
+
     private val _shouldAddReport = MutableLiveData<Boolean>()
     val addReportResponse: LiveData<Resource<Created>> = _shouldAddReport.switchMap {
         mainRepository.addReport(addReportData()).asLiveData()
     }
+
+    private val _shouldUpdateReport = MutableLiveData<Boolean>()
+    val updateReportResponse: LiveData<Resource<Updated>> = _shouldUpdateReport.switchMap {
+        mainRepository.updateReport(updateReportData()).asLiveData()
+    }
+
+    private val _shouldDeleteReport = MutableLiveData<Boolean>()
+    val deleteReportResponse: LiveData<Resource<Deleted>> = _shouldDeleteReport.switchMap {
+        mainRepository.deleteReport(report!!.id).asLiveData()
+    }
+
     var countData: Int = 0
 
     val date = MutableLiveData("")
@@ -40,6 +51,8 @@ class DetailViewModel @Inject constructor(
     val checkBoxesValue = mutableListOf<String>()
 
     var selectedTimeInMillis = System.currentTimeMillis()
+
+    var isAfterUpdate: Boolean = false
 
     fun getSourceIncome(): List<String> = listOf(
         "Teromol Masjid Harian",
@@ -122,6 +135,58 @@ class DetailViewModel @Inject constructor(
     fun addReport() {
         _shouldAddReport.value = true
         Timber.d("wakwaw ${Gson().toJson(addReportData())}")
+    }
+
+
+    private fun updateReportData(): Data = if (report!!.type == Report.INCOME) {
+        val checkBoxString =
+            if (other.value.isNullOrEmpty())
+                checkBoxesValue.filter { it != "Other" }.joinToString()
+            else
+                "${checkBoxesValue.filter { it != "Other" }.joinToString()}, ${other.value!!}"
+        val list = listOf(
+            Report(
+                id = report!!.id,
+                createdAt = report!!.createdAt,
+                type = report!!.type,
+                dateIncome = date.value!!.parseFromReadableToSimpleFormat(),
+                sourceIncome = title.value!!,
+                totalIncome = total.value!!,
+                descriptionIncome = desc.value!!,
+                recipientAndWitnessIncome = checkBoxString
+            )
+        )
+        Data(list)
+    } else {
+        val checkBoxString =
+            if (other.value.isNullOrEmpty())
+                checkBoxesValue.filter { it != "Other" }.joinToString()
+            else
+                "${checkBoxesValue.filter { it != "Other" }.joinToString()}, ${other.value!!}"
+        val list = listOf(
+            Report(
+                id = report!!.id,
+                createdAt = report!!.createdAt,
+                type = report!!.type,
+                dateExpense = date.value!!.parseFromReadableToSimpleFormat(),
+                typeExpense = title.value!!,
+                totalExpense = total.value!!,
+                whoExpense = checkBoxString,
+                whoReceived = receiver.value!!,
+                witnessExpense = witness.value!!,
+                descriptionExpense = desc.value!!
+            )
+        )
+        Data(list)
+    }
+
+    fun updateReport() {
+        _shouldUpdateReport.value = true
+        Timber.d("wakwaw ${Gson().toJson(updateReportData())}")
+    }
+
+    fun deleteReport() {
+        _shouldDeleteReport.value = true
     }
 
     /** ==========================FINISH API========================= */

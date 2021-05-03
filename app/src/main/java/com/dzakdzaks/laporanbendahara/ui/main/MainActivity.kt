@@ -12,7 +12,6 @@ import com.dzakdzaks.laporanbendahara.data.remote.model.Report
 import com.dzakdzaks.laporanbendahara.databinding.ActivityMainBinding
 import com.dzakdzaks.laporanbendahara.ui.detail.DetailActivity
 import com.dzakdzaks.laporanbendahara.utils.Resource
-import com.dzakdzaks.laporanbendahara.utils.extension.startIntent
 import com.dzakdzaks.laporanbendahara.utils.extension.toggleLoading
 import com.oushangfeng.pinnedsectionitemdecoration.PinnedHeaderItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var mainAdapter: MainAdapter
 
-    private val addForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultFromAdd(it) }
+    private val addForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultFromDetail(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                 addForResult.launch(DetailActivity.newInstanceResult(this@MainActivity, null, DetailActivity.ADD, mainAdapter.getCountBody()))
             }
             swipeRefresh.setOnRefreshListener {
-                viewModel.onRefresh()
+                viewModel.refresh()
                 swipeRefresh.isRefreshing = false
             }
         }
@@ -92,9 +91,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun resultFromAdd(result: ActivityResult) {
+    private fun resultFromDetail(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
-            viewModel.onNewReportAdded()
+            viewModel.onRefreshReportAfterFromDetail()
         }
     }
 }

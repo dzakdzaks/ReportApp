@@ -26,12 +26,12 @@ class MainViewModel @Inject constructor(
         _shouldLoadReports.value = true
     }
 
-    fun onRefresh() {
+    fun refresh() {
         Timber.d("onRefreshClicked: On refresh clicked")
         _shouldLoadReports.value = true
     }
 
-    fun onNewReportAdded() {
+    fun onRefreshReportAfterFromDetail() {
         _shouldLoadReports.value = true
     }
 

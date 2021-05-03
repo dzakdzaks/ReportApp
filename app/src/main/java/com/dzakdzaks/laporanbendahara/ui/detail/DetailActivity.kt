@@ -3,6 +3,7 @@ package com.dzakdzaks.laporanbendahara.ui.detail
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.*
@@ -17,7 +18,6 @@ import com.dzakdzaks.laporanbendahara.databinding.ActivityDetailBinding
 import com.dzakdzaks.laporanbendahara.utils.Resource
 import com.dzakdzaks.laporanbendahara.utils.extension.*
 import com.google.android.material.checkbox.MaterialCheckBox
-import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
@@ -28,8 +28,8 @@ class DetailActivity : AppCompatActivity() {
 
     private val binding: ActivityDetailBinding by lazy {
         DataBindingUtil.setContentView(
-                this,
-                R.layout.activity_detail
+            this,
+            R.layout.activity_detail
         )
     }
 
@@ -45,14 +45,34 @@ class DetailActivity : AppCompatActivity() {
         }
 
         setupView()
-        observeData()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        intent.getStringExtra(ACTION)?.let {
+            return if (it == DETAIL) {
+                menuInflater.inflate(R.menu.menu_detail, menu)
+                true
+            } else {
+                false
+            }
+        } ?: return false
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            onBackPressed()
+        when (item.itemId) {
+            android.R.id.home -> onBackPressed()
+            R.id.action_delete -> { viewModel.deleteReport() }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        if (viewModel.isAfterUpdate) {
+            setResult(RESULT_OK)
+            finish()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun setupView() {
@@ -62,8 +82,10 @@ class DetailActivity : AppCompatActivity() {
             getStringExtra(ACTION)?.let {
                 if (it == ADD) {
                     setupAdd()
+                    observeData(ADD)
                 } else {
                     setupDetail()
+                    observeData(DETAIL)
                 }
             }
 
@@ -78,11 +100,18 @@ class DetailActivity : AppCompatActivity() {
 
     private fun setupDetail() {
         binding.apply {
+            fab.setImageResource(R.drawable.ic_check)
             rbIncome.disable()
             rbExpense.disable()
             intent.getParcelableExtra<Report>(REPORT)?.let {
+                viewModel.report = it
                 conditionalViewByReport(report = it)
                 generateCheckBoxByReport(it)
+
+                binding.fab.setOnClickListener {
+                    hideSoftKeyBoard()
+                    viewModel.updateReport()
+                }
             }
         }
     }
@@ -98,12 +127,15 @@ class DetailActivity : AppCompatActivity() {
                 inputWitness.visible()
             }
 
-            supportActionBar?.title = if (report.type == Report.INCOME) "Laporan Pemasukan" else "Laporan Pengeluaran"
+            supportActionBar?.title =
+                if (report.type == Report.INCOME) "Laporan Pemasukan" else "Laporan Pengeluaran"
 
-            tvTitleCheckbox.text = if (report.type == Report.INCOME) "Penerima & Saksi" else "Yang Mengeluarkan"
+            tvTitleCheckbox.text =
+                if (report.type == Report.INCOME) "Penerima & Saksi" else "Yang Mengeluarkan"
 
             inputDate.apply {
-                hint = if (report.type == Report.INCOME) "Tanggal Pemasukan" else "Tanggal Pengeluaran"
+                hint =
+                    if (report.type == Report.INCOME) "Tanggal Pemasukan" else "Tanggal Pengeluaran"
                 editText?.setOnClickListener {
                     showMaterialDatePicker(true, viewModel.selectedTimeInMillis) { dateLong ->
                         viewModel.selectedTimeInMillis = dateLong
@@ -116,9 +148,9 @@ class DetailActivity : AppCompatActivity() {
             inputTitle.apply {
                 hint = if (report.type == Report.INCOME) "Sumber Pemasukan" else "Jenis Pengeluaran"
                 val adapter = ArrayAdapter(
-                        this@DetailActivity,
-                        R.layout.item_auto_complete,
-                        if (report.type == Report.INCOME) viewModel.getSourceIncome() else viewModel.getTypeExpense()
+                    this@DetailActivity,
+                    R.layout.item_auto_complete,
+                    if (report.type == Report.INCOME) viewModel.getSourceIncome() else viewModel.getTypeExpense()
                 )
                 (editText as? AutoCompleteTextView)?.apply {
                     setAdapter(adapter)
@@ -129,7 +161,8 @@ class DetailActivity : AppCompatActivity() {
             }
 
             inputTotal.apply {
-                hint = if (report.type == Report.INCOME) "Jumlah Pemasukan" else "Jumlah Pengeluaran"
+                hint =
+                    if (report.type == Report.INCOME) "Jumlah Pemasukan" else "Jumlah Pengeluaran"
             }
 
             /*set data*/
@@ -137,7 +170,10 @@ class DetailActivity : AppCompatActivity() {
                 toggle.check(R.id.rbIncome)
                 viewModel.apply {
                     date.value = report.dateIncome.getFullDateTimeJustDateReadable()
-                    (inputTitle.editText as? AutoCompleteTextView)?.setText(report.sourceIncome, false)
+                    (inputTitle.editText as? AutoCompleteTextView)?.setText(
+                        report.sourceIncome,
+                        false
+                    )
                     total.value = report.totalIncome
                     desc.value = report.descriptionIncome
                 }
@@ -150,7 +186,10 @@ class DetailActivity : AppCompatActivity() {
                 toggle.check(R.id.rbExpense)
                 viewModel.apply {
                     date.value = report.dateExpense.getFullDateTimeJustDateReadable()
-                    (inputTitle.editText as? AutoCompleteTextView)?.setText(report.typeExpense, false)
+                    (inputTitle.editText as? AutoCompleteTextView)?.setText(
+                        report.typeExpense,
+                        false
+                    )
                     total.value = report.totalExpense
                     receiver.value = report.whoReceived
                     witness.value = report.witnessExpense
@@ -163,13 +202,14 @@ class DetailActivity : AppCompatActivity() {
                 inputWitness.editText?.setText(report.witnessExpense)
                 inputDesc.editText?.setText(report.descriptionExpense)*/
             }
-         /*set data*/
+            /*set data*/
         }
     }
 
     private fun generateCheckBoxByReport(report: Report) {
         if (report.type == Report.INCOME) {
-            viewModel.getListReceiverAndWitness().forEach { viewModel.checkboxes.add(createCheckBox(it)) }
+            viewModel.getListReceiverAndWitness()
+                .forEach { viewModel.checkboxes.add(createCheckBox(it)) }
         } else {
             viewModel.getListWhoExpense().forEach { viewModel.checkboxes.add(createCheckBox(it)) }
         }
@@ -178,8 +218,8 @@ class DetailActivity : AppCompatActivity() {
 
     private fun setCheckedCheckBox(report: Report) {
         val listData =
-                (if (report.type == Report.INCOME) report.recipientAndWitnessIncome
-                else report.whoExpense).split(", ").filter { it != "" }
+            (if (report.type == Report.INCOME) report.recipientAndWitnessIncome
+            else report.whoExpense).split(", ").filter { it != "" }
 
         val listCBText = mutableListOf<String>()
         viewModel.checkboxes.forEach {
@@ -214,6 +254,7 @@ class DetailActivity : AppCompatActivity() {
 
     private fun setupAdd() {
         binding.apply {
+            fab.setImageResource(R.drawable.ic_add)
             containerType.visible()
             supportActionBar?.title = "Buat Laporan"
             conditionalViewByIsChecked(toggle.checkedRadioButtonId)
@@ -259,9 +300,9 @@ class DetailActivity : AppCompatActivity() {
             inputTitle.apply {
                 hint = if (isExpense) "Jenis Pengeluaran" else "Sumber Pemasukan"
                 val adapter = ArrayAdapter(
-                        this@DetailActivity,
-                        R.layout.item_auto_complete,
-                        if (isExpense) viewModel.getTypeExpense() else viewModel.getSourceIncome()
+                    this@DetailActivity,
+                    R.layout.item_auto_complete,
+                    if (isExpense) viewModel.getTypeExpense() else viewModel.getSourceIncome()
                 )
                 (editText as? AutoCompleteTextView)?.apply {
                     setAdapter(adapter)
@@ -281,10 +322,16 @@ class DetailActivity : AppCompatActivity() {
     private fun generateCheckBoxByType(isExpense: Boolean) {
         binding.apply {
             if (isExpense) {
-                if (linearCheckbox.childCount > 1) linearCheckbox.removeViews(1, viewModel.getListReceiverAndWitness().count())
+                if (linearCheckbox.childCount > 1) linearCheckbox.removeViews(
+                    1,
+                    viewModel.getListReceiverAndWitness().count()
+                )
                 viewModel.getListWhoExpense().forEach { createCheckBox(it) }
             } else {
-                if (linearCheckbox.childCount > 1) linearCheckbox.removeViews(1, viewModel.getListWhoExpense().count())
+                if (linearCheckbox.childCount > 1) linearCheckbox.removeViews(
+                    1,
+                    viewModel.getListWhoExpense().count()
+                )
                 viewModel.getListReceiverAndWitness().forEach { createCheckBox(it) }
             }
         }
@@ -312,10 +359,15 @@ class DetailActivity : AppCompatActivity() {
     private fun createCheckBox(value: String): MaterialCheckBox {
         val checkBox = MaterialCheckBox(this)
         checkBox.text = value
-        checkBox.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        checkBox.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         checkBox.setOnCheckedChangeListener { cb, isChecked ->
             val title = cb.text.toString()
-            if (isChecked) viewModel.checkBoxesValue.add(title) else viewModel.checkBoxesValue.remove(title)
+            if (isChecked) viewModel.checkBoxesValue.add(title) else viewModel.checkBoxesValue.remove(
+                title
+            )
 
             val otherCheck = viewModel.checkBoxesValue.find { it == "Other" }
             otherCheck?.let {
@@ -326,29 +378,80 @@ class DetailActivity : AppCompatActivity() {
         return checkBox
     }
 
-    private fun observeData() {
-        viewModel.addReportResponse.observe(this, {
-            when (it) {
+    private fun observeData(action: String) {
+        when (action) {
+            ADD -> {
+                viewModel.addReportResponse.observe(this, {
+                    when (it) {
 
-                is Resource.Loading -> {
-                    binding.apply {
-                        if (it.isLoading) fab.disable() else fab.enable()
-                        frameLoading.toggleLoading(isLoading = it.isLoading)
+                        is Resource.Loading -> {
+                            binding.apply {
+                                if (it.isLoading) fab.disable() else fab.enable()
+                                frameLoading.toggleLoading(isLoading = it.isLoading)
+                            }
+                        }
+
+                        is Resource.Success -> {
+                            Toast.makeText(this, "Laporan berhasil dibuat", Toast.LENGTH_SHORT).show()
+                            setResult(RESULT_OK)
+                            finish()
+                        }
+
+                        is Resource.Error -> {
+                            Timber.d("wakwaw ${it.errorData}")
+                            Toast.makeText(this, it.errorData, Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-
-                is Resource.Success -> {
-                    Toast.makeText(this, "Laporan berhasil dibuat", Toast.LENGTH_SHORT).show()
-                    setResult(RESULT_OK)
-                    finish()
-                }
-
-                is Resource.Error -> {
-                    Timber.d("wakwaw ${it.errorData}")
-                    Toast.makeText(this, it.errorData, Toast.LENGTH_SHORT).show();
-                }
+                })
             }
-        })
+            DETAIL -> {
+                viewModel.updateReportResponse.observe(this, {
+                    when (it) {
+
+                        is Resource.Loading -> {
+                            binding.apply {
+                                if (it.isLoading) fab.disable() else fab.enable()
+                                frameLoading.toggleLoading(isLoading = it.isLoading)
+                            }
+                        }
+
+                        is Resource.Success -> {
+                            viewModel.isAfterUpdate = true
+                            Toast.makeText(this, "Laporan berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                        }
+
+                        is Resource.Error -> {
+                            Timber.d("wakwaw ${it.errorData}")
+                            Toast.makeText(this, it.errorData, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+                viewModel.deleteReportResponse.observe(this, {
+                    when (it) {
+
+                        is Resource.Loading -> {
+                            binding.apply {
+                                if (it.isLoading) fab.disable() else fab.enable()
+                                frameLoading.toggleLoading(isLoading = it.isLoading)
+                            }
+                        }
+
+                        is Resource.Success -> {
+                            Toast.makeText(this, "Laporan berhasil di hapus", Toast.LENGTH_SHORT).show()
+                            setResult(RESULT_OK)
+                            finish()
+                        }
+
+                        is Resource.Error -> {
+                            Timber.d("wakwaw ${it.errorData}")
+                            Toast.makeText(this, it.errorData, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+            }
+        }
 
     }
 
@@ -362,11 +465,16 @@ class DetailActivity : AppCompatActivity() {
 
         private const val COUNT = "count"
 
-        fun newInstanceResult(activity: Activity, report: Report?, action: String, count: Int): Intent =
-                activity.startIntentResult(DetailActivity::class.java) {
-                    if (report != null) it.putExtra(REPORT, report)
-                    it.putExtra(ACTION, action)
-                    it.putExtra(COUNT, count)
-                }
+        fun newInstanceResult(
+            activity: Activity,
+            report: Report?,
+            action: String,
+            count: Int
+        ): Intent =
+            activity.startIntentResult(DetailActivity::class.java) {
+                if (report != null) it.putExtra(REPORT, report)
+                it.putExtra(ACTION, action)
+                it.putExtra(COUNT, count)
+            }
     }
 }

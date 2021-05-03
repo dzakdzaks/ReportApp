@@ -12,4 +12,8 @@ class MainRepository @Inject constructor(
     fun getReports() = apiInterface.getReports()
 
     fun addReport(list: Data) = apiInterface.addReport(list)
+
+    fun updateReport(list: Data) = apiInterface.updateReport(value = list.data?.get(0)?.id ?: "0", data = list)
+
+    fun deleteReport(id: String) = apiInterface.deleteReport(value = id)
 }
