@@ -35,4 +35,7 @@ interface ApiInterface {
         @Path("column") column: String = "ID",
         @Path("value") value: String
     ): Flow<Resource<Deleted>>
+
+    @GET("$SHEET_DB/count")
+    fun getCountReport(): Flow<Resource<Count>>
 }
