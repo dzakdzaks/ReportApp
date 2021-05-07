@@ -18,6 +18,7 @@ import com.dzakdzaks.laporanbendahara.databinding.ActivityDetailBinding
 import com.dzakdzaks.laporanbendahara.utils.Resource
 import com.dzakdzaks.laporanbendahara.utils.extension.*
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
@@ -61,7 +62,19 @@ class DetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> onBackPressed()
-            R.id.action_delete -> { viewModel.deleteReport() }
+            R.id.action_delete -> {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Apakah yakin ingin di hapus?")
+                    .setMessage("Data yang dihapus tidak bisa di kembalikan lagi.")
+                    .setNegativeButton("Tidak") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .setPositiveButton("Ya") { dialog, _ ->
+                        viewModel.deleteReport()
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
